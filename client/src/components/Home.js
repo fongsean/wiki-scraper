@@ -1,19 +1,21 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from "react";
 
 function Home() {
-    const [data, setData] = React.useState(null)
-    useEffect(() => {
-        fetch("api")
-        .then((res) => res.json())
-        .then((data) => setData(data.message));
+  const [currentTime, setCurrentTime] = useState(null);
 
-    }, [])
-    return (
-        <div>
-            <p>{!data ? "Loading...": data}</p>
-            Wassup
-        </div>
-    )
+  useEffect(() => {
+    fetch("/time")
+      .then((res) => res.json())
+      .then((data) => {
+        setCurrentTime(data.time);
+      });
+  }, []);
+
+  return (
+    <div>
+      <p>{!currentTime ? "Loading..." : currentTime}</p>
+    </div>
+  );
 }
 
-export default Home
+export default Home;

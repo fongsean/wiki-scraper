@@ -1,14 +1,18 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React from "react";
+import ReactDOM from "react-dom";
+import "./index.css";
+import App from "./App";
+import reportWebVitals from "./reportWebVitals";
+
+const prefersDarkMode = () => window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+const colorMode = prefersDarkMode() ? "dark" : "light";
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <App colorMode={colorMode}/>
   </React.StrictMode>,
-  document.getElementById('root')
+  document.getElementById("root")
 );
 
 // If you want to start measuring performance in your app, pass a function

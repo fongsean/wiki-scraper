@@ -8,7 +8,8 @@ const app = express();
 app.use(express.static(path.resolve(__dirname, '../client/build')));
 
 app.get("/api", (req, res) => {
-  res.json({ message: "Hellooo from server!" });
+  let name = "Will.I.Am"
+  res.json({ message: `Hellooo from server! This is ${name}` });
 });
 
 // All other GET requests not handled before will return our React app

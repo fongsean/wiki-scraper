@@ -1,15 +1,25 @@
-import logo from './logo.svg';
-import './App.css';
-import Home from './components/Home'
+import "./App.css";
+import { Container } from "@mui/material";
+import ThemeProvider from "./ThemeProvider";
+import Home from "./components/Home";
+import NavBar from "./components/NavBar";
+import Simulator from "./components/Simulator";
+import Sim from "./components/Sim";
+import Dashboard from "./components/Dashboard";
 
-function App() {
+function App(props) {
+  const { colorMode } = props;
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Home></Home>
-      </header>
-    </div>
+    <ThemeProvider mode={colorMode}>
+      <div>
+        <NavBar></NavBar>
+        <Container maxWidth="lg">
+          <Home></Home>
+          <Simulator></Simulator>
+          <Dashboard></Dashboard>
+        </Container>
+      </div>
+    </ThemeProvider>
   );
 }
 
