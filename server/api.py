@@ -1,15 +1,12 @@
 import time
 import requests
 from bs4 import BeautifulSoup
-import json
 import random
-import sys
 import re
 import string
 from flask import Flask
 
 app = Flask(__name__)
-
 
 @app.route("/time")
 def get_current_time():
@@ -20,23 +17,18 @@ def get_current_time():
 def crawl():
     wiki_pages = []
     next_page = "/wiki/Coldplay"
-    for i in range(5):
+    for i in range(4):
         next_page, wiki_page = scrap(next_page)
         wiki_pages.append(wiki_page)
-    return {"links": wiki_pages}
+    return {"vCards": wiki_pages}
 
 
 def scrap(page_url="/wiki/Special:Random"):
     r = requests.get(url="https://en.wikipedia.org" + page_url)
     soup = BeautifulSoup(r.content, "html.parser")
-    title = soup.find(id="firstHeading")
-    allLinks = soup.find(id="bodyContent").find_all("a")
-    links_href = [link.get("href") for link in allLinks if link.get("href") != None]
-    links_wiki = [link for link in links_href if link.find("/wiki/") == 0]
-    links_page = list(
-        dict.fromkeys([link for link in links_wiki if link.find(":") == -1])
-    )
 
+    # get page content
+    title = soup.find(id="firstHeading")
     vcard = soup.find(
         lambda tag: tag.name == "table"
         and tag.has_attr("class")
@@ -45,26 +37,31 @@ def scrap(page_url="/wiki/Special:Random"):
     )
     with open(f"./vcards/{title.string}.html", "w") as outfile:
         outfile.write(str(vcard))
-
-    # get vcard data
     vcard_data = get_vcard_data(vcard)
 
-    # get links
-    page_url = get_valid_page(page_url, links_page)
+    # get next page url
+    links_all = soup.find(id="bodyContent").find_all("a")
+    links_href = [link.get("href") for link in links_all if link.get("href") != None]
+    links_wiki = [link for link in links_href if link.find("/wiki/") == 0]
+    links_wiki_valid = list(
+        dict.fromkeys([link for link in links_wiki if link.find(":") == -1])
+    )
+    next_page_url = get_next_page(page_url, links_wiki_valid)
 
-    return page_url, {
+    return next_page_url, {
         "title": title.string,
-        "vcardData": vcard_data,
+        "data": vcard_data,
+        "url": "https://en.wikipedia.org" + page_url
     }
 
 
-def get_valid_page(page_url, links_page):
-    has_vcard = False
+def get_next_page(page_url, links):
     count = 0
+    has_vcard = False
     while not has_vcard:
         count += 1
-        page_url = links_page[random.randint(0, len(links_page) - 1)]
-        r = requests.get(url="https://en.wikipedia.org" + page_url)
+        next_page_url = links[random.randint(0, len(links) - 1)]
+        r = requests.get(url="https://en.wikipedia.org" + next_page_url)
         vcards = BeautifulSoup(r.content, "html.parser").find(
             lambda tag: tag.name == "table"
             and tag.has_attr("class")
@@ -73,9 +70,10 @@ def get_valid_page(page_url, links_page):
         )
         has_vcard = True if vcards else False
 
+        # use default Python wiki page if cannot find any next page with vcard
         if count > 50:
             return "/wiki/Python_(programming_language)"
-    return page_url
+    return next_page_url
 
 
 # def replace_special_chars(text):
@@ -83,7 +81,6 @@ def get_valid_page(page_url, links_page):
 #     for initial, repl in dict_map.items():
 #         text = text.replace(initial, repl)
 #     return text
-
 
 def get_vcard_data(vcard):
     vcard_data = {}
@@ -109,8 +106,11 @@ def get_vcard_data(vcard):
                     row_data = data.text
                 else:
                     ls = data.find("ul")
-                    list_items = ls.findAll("li")
-                    row_data = ("\n").join([item.text for item in list_items])
+                    if ls == None:
+                        row_data = div.text
+                    else:
+                        list_items = ls.findAll("li")
+                        row_data = ("\n").join([item.text for item in list_items])
 
                 # row_data = row_data.encode("ascii", "ignore").decode()
                 row_data = re.sub("\[\w\]", "", row_data)

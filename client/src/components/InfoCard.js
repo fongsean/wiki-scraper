@@ -1,24 +1,19 @@
 import React from "react";
 import { Box, Card, CardActions, CardContent, Button, Typography, Grid } from "@mui/material";
 
-const bull = (
-  <Box component="span" sx={{ display: "inline-block", mx: "2px", transform: "scale(0.8)" }}>
-    •
-  </Box>
-);
-export default function InfoCard() {
+export default function InfoCard(props) {
+  const { title, vCardData } = props.vCard
+
+  for (const [key, value] of Object.entries(vCardData)) {
+    console.log(`${key}: ${value}`);
+  }
+
   return (
     <Grid item xs={3}>
       <Card>
         <CardContent>
-          <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-            Word of the Day
-          </Typography>
-          <Typography variant="h5" component="div">
-            be{bull}nev{bull}o{bull}lent
-          </Typography>
-          <Typography sx={{ mb: 1.5 }} color="text.secondary">
-            adjective
+          <Typography variant="h5" component="div" sx={{ mb: 1.5 }}>
+            {title}
           </Typography>
           <Typography variant="body2">
             well meaning and kindly.
