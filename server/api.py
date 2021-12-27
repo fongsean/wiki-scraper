@@ -43,8 +43,7 @@ def scrap(page_url="/wiki/Special:Random"):
         and "infobox" in tag["class"]
         and "vcard" in tag["class"]
     )
-    print(r.elapsed.total_seconds())
-    with open(f"./html/{title.string}.html", "w") as outfile:
+    with open(f"./vcards/{title.string}.html", "w") as outfile:
         outfile.write(str(vcard))
 
     # get vcard data
@@ -105,9 +104,14 @@ def get_vcard_data(vcard):
                 and "infobox-data" in tag["class"]
             )
             if data:
-                #div = data.find("ls")
                 div = data.find("div")
-                row_data = data.text if div == None else div.text
+                if div == None:
+                    row_data = data.text
+                else:
+                    ls = data.find("ul")
+                    list_items = ls.findAll("li")
+                    row_data = ("\n").join([item.text for item in list_items])
+
                 # row_data = row_data.encode("ascii", "ignore").decode()
                 row_data = re.sub("\[\w\]", "", row_data)
 
