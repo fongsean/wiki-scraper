@@ -10,16 +10,18 @@ export default function Simulator() {
   return (
     <Grid container spacing={2}>
       <Grid item xs={6}>
-        <Autocomplete
-          id="combo-box-demo"
-          options={top100Films}
-          renderInput={(params) => <TextField {...params} label="Movie" />}
-        />
+        <FormControl sx={{ m: 1, width: "25ch" }} variant="outlined">
+          <Autocomplete
+            id="combo-box-demo"
+            options={top100Films}
+            renderInput={(params) => <TextField {...params} label="Movie" />}
+          />
+        </FormControl>
       </Grid>
 
       <Grid item xs={6}>
         <FormControl variant="outlined" fullWidth>
-        <TextField
+          <TextField
             label="With normal TextField"
             id="outlined-start-adornment"
             InputProps={{
@@ -32,7 +34,7 @@ export default function Simulator() {
             label="Duration"
           />
         </FormControl>
-          <FormHelperText id="outlined-duration-helper-text">duration</FormHelperText>
+        <FormHelperText id="outlined-duration-helper-text">duration</FormHelperText>
       </Grid>
 
       {/* <Grid item xs={6}>
