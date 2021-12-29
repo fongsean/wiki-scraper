@@ -3,6 +3,7 @@ import { Grid } from "@mui/material";
 import InfoCard from "./InfoCard";
 
 export default function Dashboard() {
+  const [numOfPages, setNumOfPages] = useState(0);
   const [wikiDetails, setWikiDetails] = useState({ vCards: [0, 1, 2] });
 
   useEffect(() => {

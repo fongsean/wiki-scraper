@@ -1,0 +1,67 @@
+{
+  "Places": [
+    "amsterdam",
+    "norway",
+    "berlin",
+    "california",
+    "paris",
+    "singapore",
+    "argentina",
+    "brooklyn",
+    "london",
+    "finland"
+  ],
+  "Tech": [
+    "computer",
+    "data",
+    "information",
+    "instagram",
+    "virtual",
+    "electronics",
+    "quantum",
+    "gadget",
+    "online",
+    "facebook"
+  ],
+  "Music": ["piano", "band", "song", "rap", "pop", "guitar", "melody", "album", "tunes", "beat"],
+  "Sports": [
+    "football",
+    "basketball",
+    "swimming",
+    "workout",
+    "fencing",
+    "olympics",
+    "threadmill",
+    "golf",
+    "tennis",
+    "cycling"
+  ],
+  "Fashion": ["clothes", "jeans", "jacket", "hoodie", "socks", "shirt", "sunglasses", "belt", "skirt", "streetwear"],
+  "Food": ["cereal", "yogurt", "sausage", "bread", "breakfast", "sandwich", "ramen", "wine", "lunch", "beer"],
+  "Science": [
+    "photosynthesis",
+    "carbon",
+    "biology",
+    "acidity",
+    "electricity",
+    "physics",
+    "transpiration",
+    "chemical",
+    "equation",
+    "climate"
+  ],
+  "Animals": ["snake", "shark", "dog", "cat", "feline", "reptiles", "mammals", "bird", "fish", "horse"],
+  "Business": ["dollar", "bank", "accounting", "money", "inflation", "debit", "credit", "savings", "loan", "insurance"],
+  "Politics": [
+    "government",
+    "propaganda",
+    "congress",
+    "monarchy",
+    "treaty",
+    "democracy",
+    "republic",
+    "communism",
+    "polls",
+    "warfare"
+  ]
+}
