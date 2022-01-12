@@ -4,7 +4,6 @@ from bs4 import BeautifulSoup
 import random
 import json
 import re
-import string
 from collections import Counter
 from flask import Flask
 from server.classifier import Classifier
@@ -13,62 +12,69 @@ classifer = Classifier()
 
 app = Flask(__name__)
 
+@app.route("/scrapwiki")
+def scrapwiki():
+    """
+    scrap data from a nunmber of wikipedia pages
 
-@app.route("/time")
-def get_current_time():
-    return {"time": time.time()}
-
-
-# web crawl wikipedia pages
-@app.route("/crawl")
-def crawl():
+    :return: a dict/object containing an array of wikipedia pages data to be passed to frontend
+    """
+    num_of_pages = 10
     wiki_pages = []
     next_page = "/wiki/Google"
-    for i in range(5):
-        next_page, wiki_page = scrap(next_page)
+    for i in range(num_of_pages):
+        next_page, wiki_page = scrap_single(next_page)
         wiki_pages.append(wiki_page)
-    return {"vCards": wiki_pages}
+
+    # log wikipedia pages data for records
+    with open('scores.json', 'a') as scorefile:
+       json.dump({"wiki_data": wiki_pages}, scorefile)
+
+    return {"wikiData": wiki_pages}
 
 
-# scrap a single wikipedia page and return content
-def scrap(page_url="/wiki/Special:Random"):
+def scrap_single(page_url="/wiki/Special:Random"):
+    """
+    scrap a single wikipedia page and return page data
+
+    :param page_url: url of wikipedia page to be scraped, set default value as random page
+    :return next_page_url: url of next page to be scraped
+    :return wiki_data: dict/object containing title, url, category and topic scores of page
+    """
+    # GET and parse page into soup
     r = requests.get(url="https://en.wikipedia.org" + page_url)
     soup = BeautifulSoup(r.content, "html.parser")
 
-    # get page content
+    # get page title and content
+    # predict topic score based on page content
     title = soup.find(id="firstHeading")
-    vcard = soup.find(
-        lambda tag: tag.name == "table"
-        and tag.has_attr("class")
-        and "infobox" in tag["class"]
-        and "vcard" in tag["class"]
-    )
-    vcard_data = get_vcard_data(vcard)
-    predict_scores, category = predict_page_category(title, soup.find("body"))
-    # with open(f"./vcards/{title.string}.html", "w") as outfile:
-    #     outfile.write(str(soup))
+    predict_scores, category = predict_page_category(soup.find("body"))
 
-    # get next page url
+    # get url for next page to be scraped 
     links_all = soup.find(id="bodyContent").find_all("a")
     links_href = [link.get("href") for link in links_all if link.get("href") != None]
     links_wiki = [link for link in links_href if link.find("/wiki/") == 0]
     links_wiki_valid = list(
         dict.fromkeys([link for link in links_wiki if link.find(":") == -1])
     )
-    next_page_url = get_next_page(page_url, links_wiki_valid)
+    next_page_url = get_next_page(links_wiki_valid)
 
     return next_page_url, {
         "title": title.string,
-        "data": vcard_data,
         "url": "https://en.wikipedia.org" + page_url,
         "category": category,
         "scores": predict_scores,
     }
 
 
-# predict topic based on the page content
-def predict_page_category(title, soup):
-    re_pattern = re.compile("[\W_]+", re.UNICODE)
+def predict_page_category(soup):
+    """
+    predict topic based on page content
+
+    :param soup: soup of wikipedia page
+    :return final_scores: scores of all topics based on page content
+    :return category: topic category with the highest score
+    """
     stop_words = open(f"./stopWords.txt", "r").read().splitlines()
 
     # remove style and script tags from body
@@ -78,6 +84,7 @@ def predict_page_category(title, soup):
         script.decompose()
 
     # data cleaning and tokenize page content
+    re_pattern = re.compile("[\W_]+", re.UNICODE)
     texts = [text for text in soup.findAll(text=True) if text != "\n"]
     tokenized_texts = [
         token.lower()
@@ -91,7 +98,6 @@ def predict_page_category(title, soup):
     ]
 
     # predict category based on top-3 topics for each token
-    score_log = open(f"./scorelog", "a")
     final_scores = {}
     top_tokens = [token for token, count in Counter(alphabetic_texts).most_common(50)]
     for query in top_tokens:
@@ -118,17 +124,18 @@ def predict_page_category(title, soup):
                 final_scores[category] += score
             else:
                 final_scores[category] = score
-        score_log.write(str(title))
-        score_log.write(
-            f"{query}: {max(scores_positive, key=scores_positive.get)} {json.dumps(scores_positive)}\n"
-        )
 
-    score_log.write(f"{query}\n{json.dumps(final_scores)}\n")
-    score_log.close()
     return final_scores, max(final_scores, key=final_scores.get)
 
 
-def get_next_page(page_url, links):
+def get_next_page(links):
+    """
+    randomly choose a page to scrap from all wikipedia links present in page
+    verify that the next wikipedia page has a vCard
+
+    :param links: array of all wikipedia links in a page
+    :return : url of wikipedia to scrap next
+    """
     count = 0
     has_vcard = False
     while not has_vcard:
@@ -147,48 +154,3 @@ def get_next_page(page_url, links):
         if count > 50:
             return "/wiki/Python_(programming_language)"
     return next_page_url
-
-
-def get_vcard_data(vcard):
-    vcard_data = {}
-    rows = vcard.find("tbody").find_all("tr")
-    for row in rows:
-        label = row.find(
-            lambda tag: tag.name == "th"
-            and tag.has_attr("class")
-            and "infobox-label" in tag["class"]
-        )
-        if label:
-            row_label = label.text
-
-            # find data if label exists
-            data = row.find(
-                lambda tag: tag.name == "td"
-                and tag.has_attr("class")
-                and "infobox-data" in tag["class"]
-            )
-            if data:
-                div = data.find("div")
-                if div == None:
-                    row_data = data.text
-                else:
-                    ls = data.find("ul")
-                    if ls == None:
-                        row_data = div.text
-                    else:
-                        list_items = ls.findAll("li")
-                        row_data = ("\n").join([item.text for item in list_items])
-
-                # row_data = row_data.encode("ascii", "ignore").decode()
-                row_data = re.sub("\[\w\]", "", row_data)
-
-                if "\n" in row_data:
-                    row_data = [
-                        string.capwords(item)
-                        for item in row_data.split("\n")
-                        if item != ""
-                    ]
-
-                vcard_data[row_label] = row_data
-
-    return vcard_data

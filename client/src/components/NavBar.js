@@ -1,34 +1,12 @@
-
-import * as React from 'react';
-import {AppBar, Box, Toolbar, Typography, Container, Button} from '@mui/material';
-
-const pages = ['Home', 'Simulator', 'Resources'];
+import * as React from "react";
+import { AppBar, Toolbar, Typography, Container, Button } from "@mui/material";
 
 const NavBar = () => {
   return (
     <AppBar position="static">
-      <Container maxWidth="lg">
+      <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <Typography
-            variant="h6"
-            noWrap
-            component="div"
-            sx={{ mr: 2, display: { xs: 'none', md: 'flex' } }}
-          >
-            Real-Time-FHIR
-          </Typography>
-
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            {pages.map((page) => (
-              <Button 
-                key={page}
-                sx={{ my: 2, color: 'white', display: 'block' }}
-              >
-                {page}
-              </Button>
-            ))}
-          </Box>
-
+          <Typography variant="h6">Wiki Scraper AI Topic Classifier</Typography>
         </Toolbar>
       </Container>
     </AppBar>
