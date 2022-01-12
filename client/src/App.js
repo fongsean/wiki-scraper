@@ -1,10 +1,7 @@
 import "./App.css";
 import { Container } from "@mui/material";
 import ThemeProvider from "./ThemeProvider";
-import Home from "./components/Home";
 import NavBar from "./components/NavBar";
-import Simulator from "./components/Simulator";
-import Sim from "./components/Sim";
 import Dashboard from "./components/Dashboard";
 
 function App(props) {
@@ -13,9 +10,7 @@ function App(props) {
     <ThemeProvider mode={colorMode}>
       <div>
         <NavBar></NavBar>
-        <Container maxWidth="lg">
-          <Home></Home>
-          <Simulator></Simulator>
+        <Container maxWidth="xl">
           <Dashboard></Dashboard>
         </Container>
       </div>

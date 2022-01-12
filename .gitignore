@@ -6,10 +6,10 @@ node_modules
 .pnp.js
 
 # testing
-/client/coverage
+coverage
 
 # production
-/client/build
+build
 
 # misc
 .DS_Store
@@ -25,3 +25,4 @@ yarn-error.log*
 venv
 __pycache__
 vcards
+/server/glove.6B.100d.txt
